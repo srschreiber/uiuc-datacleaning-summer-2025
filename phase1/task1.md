@@ -7,7 +7,7 @@
   - Any relevant metadata (e.g., time period covered, geographic scope, etc.).
 
 
-## Relationship
+## Description
 
 ### Menu
 
@@ -46,3 +46,12 @@ Represents a dish and its price on a specific menu page.
 - name, description, first_appeared, highest_price, etc.
 
 - Represents a unique dish concept across menus.
+
+## Relationship
+
+Relationships
+Menu ⟶ MenuPage (1-to-many)
+
+MenuPage ⟶ MenuItem (1-to-many)
+
+MenuItem ⟶ Dish (many-to-1)
