@@ -11,7 +11,7 @@
 We will measure the most popular dishes by for each decade that data is collected in the NYPL library.
 We will answer questions like:
 - What are the items that have the most longevity and staying power on menus throughout the ages
-- What items were popular only for a short while before more or less disappearing from menus
+- How did the cost of popular dishes change over time wrt inflation?
 Cleaning is necessary for this as the dishes table is extremely dirty.
 Dish names are repeated in many different forms with Coffee itself appearing in 600+ different dish types.
 
