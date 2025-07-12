@@ -12,3 +12,5 @@
 ## Inconsistent Formats:
 
 ![ER Diagram](../images/inconsistent_dish_names.png)
+
+In this example, the problem is that the names column of the Dish dataset contains inconsistent formats of the same name. In this case, demi-tasse coffee has varying formats across different dishes, when it should all be consistent under one format. This impacts the main use case because if we want to find the most popular dishes, having inconsistent formats will decrease the counts of certain dish names, potentially skewing the results. 
