@@ -21,6 +21,9 @@ Team58
 
 This dataset originates from the **New York Public Library’s “What’s on the Menu?”** project, an initiative to **digitize historical menus** from the collection. The dataset contains **45,000 menus** spanning from the **1840s to the present**. As of November 2016, the transcribed database includes over **1.3 million dishes** extracted from **17,545 menus**. It consists of `Menu`, `MenuPage`, `MenuItem`, and `Dish` tables, form a relational database schema. One `Menu` can have multiple `MenuPage`s, each containing multiple `MenuItem`s, which reference a `Dish`. The dataset is available on [Kaggle](https://www.kaggle.com/datasets/nypl/whats-on-the-menu) and is updated twice monthly.
 
+## Citations
+New York Public Library. (n.d.). What’s On The Menu? Kaggle. Retrieved July 13, 2025, from https://www.kaggle.com/datasets/nypl/whats-on-the-menu/suggestions
+
 ---
 
 ## Data Structure and Attributes
@@ -128,9 +131,10 @@ Represents a **a dish**.
 We will measure the most popular dishes by for each decade that data is collected in the NYPL library.
 We will answer questions like:
 - What are the items that have the most longevity and staying power on menus throughout the ages
-- How did the cost of popular dishes change over time wrt inflation?
-Cleaning is necessary for this as the dishes table is extremely dirty.
-Dish names are repeated in many different forms with Coffee itself appearing in 600+ different dish types.
+- How did the cost of popular dishes change over time with respect to inflation?
+
+Cleaning is necessary for this as the dish's table is dirty.
+Dish names are repeated in many forms with Coffee itself appearing in 600+ different dish types.
 
 ## U0 (Zero Cleaning Use Case):
 How has the size of menus changed over the decades.
@@ -197,7 +201,7 @@ In this example from the Dish table, notice that these two records - aside from 
 # Task 4: Initial Data Cleaning Plan
 U1: 
 - What are the items that have the most longevity and staying power on menus throughout the ages
-- How did the cost of popular dishes change over time wrt inflation?
+- How did the cost of popular dishes change over time with respect to inflation?
 
 S1: 
 The dataset D consists of four tables: `Menu`, `MenuPage`, `MenuItem`, and `Dish`. The main use case U1 focuses on analyzing the longevity and popularity of dishes over time. This requires cleaning the `Dish` table to ensure that dish names are standardized, as many dishes appear in various forms. The `MenuItem` table will also need to be cleaned to ensure accurate linking to the `Dish` table. We also need to ensure there is no double counting, e.g. all the one to many relationships are properly maintained and determine a strategy for deciding which record to keep in case of duplicates.
