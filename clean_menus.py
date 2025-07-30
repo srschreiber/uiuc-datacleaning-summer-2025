@@ -23,10 +23,20 @@ import os
 import pickle
 from typing import List
 from src.lib.openai_client import LLMCleaner
+import re
 
 def embed_dishes_in_batches(cleaner: LLMCleaner, dishes: List[str], batch_size=1000) -> List[List[float]]:
     all_embeddings = []
 
+    def normalize_dish_name(name: str) -> str:
+        if not name:
+            return ""
+        name = name.lower().strip()
+        name = re.sub(r'[^a-z0-9\s]', '', name)
+        name = re.sub(r'\s+', ' ', name)
+        return name
+
+    dishes = list(map(normalize_dish_name, dishes))
     for i in tqdm(range(0, len(dishes), batch_size), desc="Embedding batches"):
         batch = dishes[i:i + batch_size]
         response = cleaner.embed_dishes(batch)
@@ -136,7 +146,7 @@ def run():
             all_menu_items.append(row)
     
     dish_names = [dish["name"] for dish in all_dishes]
-    cleaned_dish_names = cluster(dish_names, eps=0.1)
+    cleaned_dish_names = cluster(dish_names, eps=0.15)
 
     grouped_by_name = defaultdict(list)
     for dish, cleaned_name in zip(all_dishes, cleaned_dish_names):
