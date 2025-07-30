@@ -6,20 +6,23 @@ from pydantic import BaseModel
 from langchain.chains.llm import LLMChain
 from typing import List
 from sklearn.cluster import DBSCAN
+from typing import Optional
+from typing import Iterator
+import csv
 
 
 class LLMCleaner:
     class OutputItem(BaseModel):
         original_dish: str
         normalized_dish: str
-        cluster_id: str
+        cluster_id: int
 
     class EmbeddedDish(BaseModel):
         dish: str
         embedding: List[float]
         
     class EmbeddedDishResponse(BaseModel):
-        entities: List['LLMCleaner.EmbeddedDish']
+        entities: Optional[List['LLMCleaner.EmbeddedDish']]
 
     class NormalizeDishResponseEntity(BaseModel):
         original_dish: str
@@ -30,6 +33,7 @@ class LLMCleaner:
 
     def __init__(self):
         self.model = self.create_model()
+        self.embedding_model = self.create_embedding_model()
         self.normalize_dish_output_parser = PydanticOutputParser(
             pydantic_object=self.NormalizeDishResponse,
         )
@@ -59,75 +63,41 @@ class LLMCleaner:
             prompt=self.normalize_dish_prompt,
             output_parser=self.normalize_dish_output_parser,
         )
-
-        self.clusterer = DBSCAN(eps=0.5, min_samples=2, metric='cosine')
-        # Returns EmbeddedDishResponse
-        self.embed_dish_prompt = PromptTemplate(
-            input_variables=["dish"],
-            template="""
-                You are a culinary data processor. Given a dish name, return its embedding.
-                The input is a dish name:
-                {dish}
-
-                Return the embedding as a list of floats according to the following instructions:
-                {instructions}
-            """,
-            partial_variables={"instructions": self.normalize_dish_output_parser.get_format_instructions()},
-            output_parser=PydanticOutputParser(
-                pydantic_object=self.EmbeddedDishResponse,
-            )
-        )
-
-        self.embed_chain = LLMChain(
-            llm=self.model,
-            prompt=self.embed_dish_prompt,
-            output_parser=PydanticOutputParser(
-                pydantic_object=self.EmbeddedDishResponse,
-            ),
-        )
     
-    def run(self, dishes: List[str]) -> list[OutputItem]:
+    def run(self, dishes: List[str]) -> Iterator[NormalizeDishResponse]:
+        # Normalize dishes
         normalized_dishes = self.normalize_dishes(dishes)
-        embeddings = self.embed_dishes([dish.original_dish for dish in normalized_dishes.entities])
-
-        # cluster the embeddings
-        embeddings_list = [dish.embedding for dish in embeddings.entities]
-        clusters = self.clusterer.fit_predict(embeddings_list)
-
-        output_items = []
-        for i, (dish, cluster_id) in enumerate(zip(normalized_dishes.entities, clusters)):
-            output_items.append(
-                self.OutputItem(
-                    original_dish=dish.original_dish,
-                    normalized_dish=dish.normalized_dish,
-                    cluster_id=str(cluster_id) if cluster_id != -1 else i
-                )
-            )
-        
-        return output_items
+        return normalized_dishes
         
 
     def embed_dishes(self, dishes: List[str]) -> EmbeddedDishResponse:
         """
         Embed a list of dish names using the LLM.
         """
-        dishes_str = "\n".join(f"- {dish}" for dish in dishes)
-        return self.embed_chain.run(dish=dishes_str)
+        embeddings: list[list[float]] = self.embedding_model.embed_documents(dishes, chunk_size=1000)
+        items: list[LLMCleaner.EmbeddedDish] = []
+        items = [LLMCleaner.EmbeddedDish(dish=dish, embedding=embedding) for dish, embedding in zip(dishes, embeddings)]
+        return LLMCleaner.EmbeddedDishResponse(entities=items)
 
-    
-    def normalize_dishes(self, dishes: List[str]) -> NormalizeDishResponse:
+
+    def normalize_dishes(self, dishes: List[str]) -> Iterator[NormalizeDishResponse]:
         """
         Normalize a list of dish names using the LLM.
+        Batch and generate 
         """
-        dishes_str = "\n".join(f"- {dish}" for dish in dishes)
-        return self.chain_norm.run(dishes=dishes_str)
+        batch_size = 1000
 
-    def create_embedding_model(self) -> AzureChatOpenAI:
+        for i in range(0, len(dishes), batch_size):
+            batch = dishes[i:i+batch_size]
+            normalized_batch = self.chain_norm.run(dishes=batch)
+            yield normalized_batch
+
+    def create_embedding_model(self) -> AzureOpenAIEmbeddings:
         # Create embeddings model (e.g., OpenAI GPT-4)
         return AzureOpenAIEmbeddings(
             azure_endpoint=config.openai_endpoint,
-            azure_deployment=config.openai_model,
-            api_version="2024-05-01-preview",
+            azure_deployment="text-embedding-3-small",
+            api_version="2023-05-15",
             api_key=config.openai_api_key,
         )
 
