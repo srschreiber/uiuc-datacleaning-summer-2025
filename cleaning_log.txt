@@ -1,0 +1,25 @@
+[Foreign Key Violations] MenuPage.menu_id — Violations Before: 5803, After: 0, Cells Changed: 5803
+[Foreign Key Violations] MenuItem.menu_page_id — Violations Before: 5373, After: 0, Cells Changed: 5373
+[Foreign Key Violations] MenuItem.dish_id — Violations Before: 244, After: 0, Cells Changed: 244
+[Duplicate Rows - MenuPage] all columns — Violations Before: 0, After: 0, Cells Changed: 0
+[Duplicate Rows - MenuItem] all columns — Violations Before: 0, After: 0, Cells Changed: 0
+[Page Number Validity] MenuPage.page_number — Violations Before: 945, After: 0, Cells Changed: 945
+[Page Number Validity] MenuPage.page_number (uniqueness) — Violations Before: 62, After: 0, Cells Changed: 62
+[MenuItem on Multiple Pages] MenuItem.dish_id & menu_page_id — Violations Before: 19935, After: 0, Cells Changed: 19935
+[Remove 100% Null Columns] Menu.keywords — Violations Before: 1, After: 0, Cells Changed: 17545
+[Remove 100% Null Columns] Menu.language — Violations Before: 1, After: 0, Cells Changed: 17545
+[Remove 100% Null Columns] Menu.location_type — Violations Before: 1, After: 0, Cells Changed: 17545
+[Remove 100% Null Columns] Dish.description — Violations Before: 1, After: 0, Cells Changed: 423397
+[Primary Key Issues - Menu] id (nulls) — Violations Before: 0, After: 0, Cells Changed: 0
+[Primary Key Issues - Menu] id (dupes) — Violations Before: 0, After: 0, Cells Changed: 0
+[Primary Key Issues - MenuPage] id (nulls) — Violations Before: 0, After: 0, Cells Changed: 0
+[Primary Key Issues - MenuPage] id (dupes) — Violations Before: 0, After: 0, Cells Changed: 0
+[Primary Key Issues - MenuItem] id (nulls) — Violations Before: 0, After: 0, Cells Changed: 0
+[Primary Key Issues - MenuItem] id (dupes) — Violations Before: 0, After: 0, Cells Changed: 0
+[Primary Key Issues - Dish] id (nulls) — Violations Before: 0, After: 0, Cells Changed: 0
+[Primary Key Issues - Dish] id (dupes) — Violations Before: 0, After: 0, Cells Changed: 0
+[Date Fixes] Menu.date — Violations Before: 586, After: 0, Cells Changed: 586
+[Date Fixes] Dish.first_appeared — Violations Before: 11, After: 0, Cells Changed: 11
+[Date Fixes] Dish.last_appeared — Violations Before: 179, After: 0, Cells Changed: 179
+[Date Fixes] Dish.first_appeared > last_appeared — Violations Before: 0, After: 0, Cells Changed: 0
+[Date Fixes] MenuItem.created_at > updated_at — Violations Before: 2843, After: 0, Cells Changed: 2843
