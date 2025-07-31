@@ -71,7 +71,7 @@ def cluster(dishes: List[str], eps: float = 0.1) -> List[str]:
     index = faiss.IndexFlatIP(X.shape[1])
     index.add(X)
 
-    k = 50  # Number of neighbors to search
+    k = 128  # Number of neighbors to search
     print("Searching for neighbors...")
     D, I = index.search(X, k)
 
@@ -146,7 +146,7 @@ def run():
             all_menu_items.append(row)
     
     dish_names = [dish["name"] for dish in all_dishes]
-    cleaned_dish_names = cluster(dish_names, eps=0.15)
+    cleaned_dish_names = cluster(dish_names, eps=0.10)
 
     grouped_by_name = defaultdict(list)
     for dish, cleaned_name in zip(all_dishes, cleaned_dish_names):
@@ -206,7 +206,7 @@ def run():
     cleaned_menu_items = []
     # Now read in the menu items and overwrite the dish ids to match the new merged dishes
     for menu_item in all_menu_items:
-        old_dish_id = menu_item["dish_id"]
+        old_dish_id = str(int(float(menu_item["dish_id"])))
         if old_dish_id in dish_id_mappings:
             menu_item["dish_id"] = dish_id_mappings[old_dish_id]
         cleaned_menu_items.append(menu_item)
@@ -227,6 +227,49 @@ def run():
         for menu_item in cleaned_menu_items:
             writer.writerow(menu_item)
 
+def compare_old_and_new_dishes():
+    """
+    This function will randomly select 10 menu item ids. It will then join the new menu items with new dishes,
+    and the old menu items with old dishes. It will then compare the dish names and prices and display the differences.
+    """
+    new_fpath_dish = "cleaned_data/Dish.csv"
+    new_fpath_menu_item = "cleaned_data/MenuItem.csv"
+    old_fpath_dish = "/Users/samschreiber/Downloads/cleaned_data/Dish.csv"
+    old_fpath_menu_item = "/Users/samschreiber/Downloads/cleaned_data/MenuItem.csv"
+
+    # select 10 rows between 1 and # rows(old_fpath_menu_item)
+    with open(old_fpath_menu_item, "r") as f:
+        reader = csv.DictReader(f)
+        old_menu_items = list(reader)
+
+    with open(new_fpath_menu_item, "r") as f:
+        reader = csv.DictReader(f)
+        new_menu_items = list(reader)
+    
+    sampled = np.random.choice(len(old_menu_items), size=10, replace=False)
+
+    new_sampled = [new_menu_items[i] for i in sampled]
+    old_sampled = [old_menu_items[i] for i in sampled]
+
+    # index the new and old dishes by dish id
+    new_dishes = {}
+    with open(new_fpath_dish, "r") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            new_dishes[int(float(row["id"]))] = row
+
+    old_dishes = {}
+    with open(old_fpath_dish, "r") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            old_dishes[int(float(row["id"]))] = row
+
+    for new_item, old_item in zip(new_sampled, old_sampled):
+        new_dish = new_dishes[int(float(new_item["dish_id"]))] if int(float(new_item["dish_id"])) in new_dishes else None
+        old_dish = old_dishes[int(float(old_item["dish_id"]))] if int(float(old_item["dish_id"])) in old_dishes else None
+        print(f"New Item: {new_item['id']}, Dish: {new_dish['name'] if new_dish else 'N/A'}")
+        print(f"Old Item: {old_item['id']}, Dish: {old_dish['name'] if old_dish else 'N/A'}")
+        print("-" * 40)
 
 if __name__ == "__main__":
     # Example usage of LLMCleaner
@@ -241,4 +284,5 @@ if __name__ == "__main__":
 
 
     # print(dish_index)
-    run()
+    # run()
+    compare_old_and_new_dishes()
