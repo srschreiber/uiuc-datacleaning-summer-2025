@@ -146,7 +146,7 @@ def run():
             all_menu_items.append(row)
     
     dish_names = [dish["name"] for dish in all_dishes]
-    cleaned_dish_names = cluster(dish_names, eps=0.10)
+    cleaned_dish_names = cluster(dish_names, eps=0.05)
 
     grouped_by_name = defaultdict(list)
     for dish, cleaned_name in zip(all_dishes, cleaned_dish_names):
@@ -209,6 +209,8 @@ def run():
         old_dish_id = str(int(float(menu_item["dish_id"])))
         if old_dish_id in dish_id_mappings:
             menu_item["dish_id"] = dish_id_mappings[old_dish_id]
+        if float(old_dish_id) != float(dish_id_mappings[old_dish_id]):
+            print(f"Detected Mismatch: Old Dish ID {old_dish_id} != New Dish ID {dish_id_mappings[old_dish_id]}")
         cleaned_menu_items.append(menu_item)
     
     # Write the cleaned dishes to a new file
@@ -246,10 +248,6 @@ def compare_old_and_new_dishes():
         reader = csv.DictReader(f)
         new_menu_items = list(reader)
     
-    sampled = np.random.choice(len(old_menu_items), size=10, replace=False)
-
-    new_sampled = [new_menu_items[i] for i in sampled]
-    old_sampled = [old_menu_items[i] for i in sampled]
 
     # index the new and old dishes by dish id
     new_dishes = {}
@@ -264,11 +262,16 @@ def compare_old_and_new_dishes():
         for row in reader:
             old_dishes[int(float(row["id"]))] = row
 
-    for new_item, old_item in zip(new_sampled, old_sampled):
+    for new_item, old_item in zip(new_menu_items, old_menu_items):
         new_dish = new_dishes[int(float(new_item["dish_id"]))] if int(float(new_item["dish_id"])) in new_dishes else None
         old_dish = old_dishes[int(float(old_item["dish_id"]))] if int(float(old_item["dish_id"])) in old_dishes else None
-        print(f"New Item: {new_item['id']}, Dish: {new_dish['name'] if new_dish else 'N/A'}")
-        print(f"Old Item: {old_item['id']}, Dish: {old_dish['name'] if old_dish else 'N/A'}")
+
+        if new_dish and old_dish and int(float(new_item["dish_id"])) == int(float(old_item["dish_id"])):
+            # not interesting, continue
+            continue
+        print(f"For Menu Item ID: {new_item['id']}")
+        print(f"New Dish ID: {new_item['dish_id']}, Dish: {new_dish['name'] if new_dish else 'N/A'}")
+        print(f"Old Dish ID: {old_item['dish_id']}, Dish: {old_dish['name'] if old_dish else 'N/A'}")
         print("-" * 40)
 
 if __name__ == "__main__":
@@ -284,5 +287,5 @@ if __name__ == "__main__":
 
 
     # print(dish_index)
-    # run()
+    #run()
     compare_old_and_new_dishes()
