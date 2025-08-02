@@ -28,46 +28,45 @@ This cleaning is necessary because many dishes may be incorrectly divided into m
 This indicates that 22.2% of Dishes were identified as duplicates and were consolidated into a single record. After cleaning the Dish table, 23% of MenuItems were updated to reflect the new Dish IDs, indicating that many MenuItems needed to be adjusted to point to the newly consolidated Dish records.
 
 ## Spot Checking a few Values
-------------------------------------------
 For Menu Item ID: 1383928
-New Dish ID: 53126, Dish: Little Neck Clam Cream Stew
-Old Dish ID: 511857.0, Dish: little neck clams stew with cream
-----------------------------------------
+- New Dish ID: 53126, Dish: Little Neck Clam Cream Stew
+- Old Dish ID: 511857.0, Dish: little neck clams stew with cream
+
 For Menu Item ID: 1385314
-New Dish ID: 4432, Dish: Hennessy Brandy
-Old Dish ID: 437861.0, Dish: * * * Hennessy Brandy
-----------------------------------------
+- New Dish ID: 4432, Dish: Hennessy Brandy
+- Old Dish ID: 437861.0, Dish: * * * Hennessy Brandy
+
 For Menu Item ID: 1385710
-New Dish ID: 241234, Dish: Tossed Salad with Thousand Island Dressing
-Old Dish ID: 515515.0, Dish: Tossed salad greens with Thousand Island dressing
-----------------------------------------
+- New Dish ID: 241234, Dish: Tossed Salad with Thousand Island Dressing
+- Old Dish ID: 515515.0, Dish: Tossed salad greens with Thousand Island dressing
+
 For Menu Item ID: 1385502
-New Dish ID: 3098, Dish: Lamb kidneys broiled with bacon
-Old Dish ID: 481194.0, Dish: Lamb kidneys with bacon, broiled
-----------------------------------------
+- New Dish ID: 3098, Dish: Lamb kidneys broiled with bacon
+- Old Dish ID: 481194.0, Dish: Lamb kidneys with bacon, broiled
+
 For Menu Item ID: 1385170
-New Dish ID: 409234, Dish: Alaska Red Salmon Salad, Potato Salad, Tomato Slices
-Old Dish ID: 514387.0, Dish: Alaska Red Salmon, Lemon Slice, Potato Salad, Tomato Slices, Lettuce
-----------------------------------------
+- New Dish ID: 409234, Dish: Alaska Red Salmon Salad, Potato Salad, Tomato Slices
+- Old Dish ID: 514387.0, Dish: Alaska Red Salmon, Lemon Slice, Potato Salad, Tomato Slices, Lettuce
+
 For Menu Item ID: 1385684
-New Dish ID: 431200, Dish: Span Backwerk
-Old Dish ID: 515491.0, Dish: Span. Backwerk.
-----------------------------------------
+- New Dish ID: 431200, Dish: Span Backwerk
+- Old Dish ID: 515491.0, Dish: Span. Backwerk.
+
 For Menu Item ID: 1385691
-New Dish ID: 6714, Dish: Eggs Shirred
-Old Dish ID: 411239.0, Dish: Eggs, Shirred
+- New Dish ID: 6714, Dish: Eggs Shirred
+- Old Dish ID: 411239.0, Dish: Eggs, Shirred
+
 For Menu Item ID: 1385694
-New Dish ID: 2117, Dish: Minced ham, scrambled egg
-Old Dish ID: 515500.0, Dish: Minced Ham, Scrambled with Eggs
-----------------------------------------
+- New Dish ID: 2117, Dish: Minced ham, scrambled egg
+- Old Dish ID: 515500.0, Dish: Minced Ham, Scrambled with Eggs
+
 For Menu Item ID: 1385442
-New Dish ID: 2586, Dish: Delmonico Steak Mushrooms
-Old Dish ID: 498696.0, Dish: Delmonico steak with mushroom ssauce
-----------------------------------------
+- New Dish ID: 2586, Dish: Delmonico Steak Mushrooms
+- Old Dish ID: 498696.0, Dish: Delmonico steak with mushroom sauce
+
 For Menu Item ID: 1384956
-New Dish ID: 286007, Dish: Geflügelcrèmesuppe, Hamburger Zwiebelsteak mit Erbsen, Karotten und Kartoffelbrei
-Old Dish ID: 479722.0, Dish: Geflügelcrèmesuppe, Hamburger Zwiebelsteak mit Erbsen, Karotten und Kartoffelbrei, Apfelschnitte
-----------------------------------------
+- New Dish ID: 286007, Dish: Geflügelcrèmesuppe, Hamburger Zwiebelsteak mit Erbsen, Karotten und Kartoffelbrei
+- Old Dish ID: 479722.0, Dish: Geflügelcrèmesuppe, Hamburger Zwiebelsteak mit Erbsen, Karotten und Kartoffelbrei, Apfelschnitte
 
 # Workflow Model
 
