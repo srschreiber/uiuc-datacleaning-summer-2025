@@ -4,7 +4,7 @@ from datetime import datetime
 
 RAW_FOLDER = 'raw_dataset'
 CLEANED_FOLDER = 'cleaned_data'
-LOG_PATH = 'cleaning_log.txt'
+LOG_PATH = 'patrick_cleaning_log.txt'
 DATE_RANGE = (1800, 2025)
 
 os.makedirs(CLEANED_FOLDER, exist_ok=True)
