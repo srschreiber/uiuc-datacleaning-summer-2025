@@ -102,22 +102,6 @@ This document describes the detailed inner workflow (W2) of the data cleaning pr
 
 ---
 
-## Dependency Graph Summary
-
-```
-[Raw CSVs] --> [Load DataFrames]
-     --> [Foreign Key Validation] --> [Orphan Record Removal]
-     --> [Duplicate Detection] --> [Row Deduplication]
-     --> [Page Number Validation] --> [Fix Page Number Issues]
-     --> [MenuItem Page Appearance Check] --> [Deduplicate MenuItem Pages]
-     --> [Null Column Profiling] --> [Drop Fully Null Columns]
-     --> [Primary Key Integrity Check] --> [Remove PK Violations]
-     --> [Date Validation & Fixes]
-     --> [Save Cleaned Data] --> [Generate Cleaning Log]
-```
-
----
-
 ## Workflow Outputs
 
 - **Cleaned CSV Files:**
@@ -131,13 +115,4 @@ This document describes the detailed inner workflow (W2) of the data cleaning pr
 
   - cleaning\_log.txt (detailed summary of all changes applied)
 
----
-
-## Workflow Characteristics
-
-- Fully scriptable, deterministic batch cleaning process
-- Reproducible and auditable via cleaning\_log.txt
-- Modular steps enable isolation of cleaning actions for debugging
-
----
 
