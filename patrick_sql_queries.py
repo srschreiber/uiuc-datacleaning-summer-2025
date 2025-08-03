@@ -1,0 +1,108 @@
+import sqlite3
+import pandas as pd
+import os
+
+RAW_FOLDER = 'raw_dataset'
+OUTPUT_LOG = 'patrick_queries_log.txt'
+
+# Load CSVs
+menu = pd.read_csv(os.path.join(RAW_FOLDER, 'Menu.csv'))
+menupage = pd.read_csv(os.path.join(RAW_FOLDER, 'MenuPage.csv'))
+menuitem = pd.read_csv(os.path.join(RAW_FOLDER, 'MenuItem.csv'))
+dish = pd.read_csv(os.path.join(RAW_FOLDER, 'Dish.csv'))
+
+# SQLite In-Memory DB
+conn = sqlite3.connect(':memory:')
+cursor = conn.cursor()
+
+# Load tables into SQLite
+menu.to_sql('Menu', conn, index=False, if_exists='replace')
+menupage.to_sql('MenuPage', conn, index=False, if_exists='replace')
+menuitem.to_sql('MenuItem', conn, index=False, if_exists='replace')
+dish.to_sql('Dish', conn, index=False, if_exists='replace')
+
+queries = {
+    'Orphan MenuPages (menu_id not in Menu)': """
+        SELECT id, menu_id FROM MenuPage WHERE menu_id NOT IN (SELECT id FROM Menu);
+    """,
+    'Orphan MenuItems (menu_page_id not in MenuPage)': """
+        SELECT id, menu_page_id FROM MenuItem WHERE menu_page_id NOT IN (SELECT id FROM MenuPage);
+    """,
+    'MenuItem with invalid dish_id': """
+        SELECT id, dish_id FROM MenuItem WHERE dish_id NOT IN (SELECT id FROM Dish);
+    """,
+    'Duplicate MenuPage (id)': """
+        SELECT id, COUNT(*) FROM MenuPage GROUP BY id HAVING COUNT(*) > 1;
+    """,
+    'Duplicate MenuItem (id)': """
+        SELECT id, COUNT(*) FROM MenuItem GROUP BY id HAVING COUNT(*) > 1;
+    """,
+    'Duplicate Dish (id)': """
+        SELECT id, COUNT(*) FROM Dish GROUP BY id HAVING COUNT(*) > 1;
+    """,
+    'Duplicate page_number within same menu_id in MenuPage': """
+        SELECT menu_id, page_number, COUNT(*) 
+        FROM MenuPage 
+        GROUP BY menu_id, page_number 
+        HAVING COUNT(*) > 1;
+    """,
+    'MenuItems appearing on multiple pages (same dish_id on multiple menu_page_id)': """
+        SELECT dish_id, COUNT(DISTINCT menu_page_id)
+        FROM MenuItem
+        GROUP BY dish_id
+        HAVING COUNT(DISTINCT menu_page_id) > 1;
+    """,
+    'MenuPage.page_number < 1 or NULL': """
+        SELECT id, menu_id, page_number FROM MenuPage WHERE page_number IS NULL OR page_number < 1;
+    """,
+    'Menu.date outside 1800-2025': """
+        SELECT id, date FROM Menu 
+        WHERE 
+            date IS NULL 
+            OR CAST(strftime('%Y', date) AS INTEGER) < 1800 
+            OR CAST(strftime('%Y', date) AS INTEGER) > 2025;
+    """,
+    'Dish first_appeared > last_appeared': """
+        SELECT id, first_appeared, last_appeared 
+        FROM Dish 
+        WHERE first_appeared IS NOT NULL AND last_appeared IS NOT NULL 
+              AND first_appeared > last_appeared;
+    """,
+    'Dish first_appeared or last_appeared > 2025': """
+        SELECT id, first_appeared, last_appeared 
+        FROM Dish 
+        WHERE (first_appeared > 2025 OR last_appeared > 2025);
+    """,
+    'MenuItem created_at > updated_at': """
+        SELECT id, created_at, updated_at 
+        FROM MenuItem 
+        WHERE created_at IS NOT NULL AND updated_at IS NOT NULL 
+              AND created_at > updated_at;
+    """,
+    'Columns with 100% NULLs': """
+        SELECT 'Menu' AS table_name, 'keywords' AS column_name 
+        FROM Menu WHERE (SELECT COUNT(keywords) FROM Menu WHERE keywords IS NOT NULL) = 0
+        UNION ALL
+        SELECT 'Menu', 'language' FROM Menu WHERE (SELECT COUNT(language) FROM Menu WHERE language IS NOT NULL) = 0
+        UNION ALL
+        SELECT 'Menu', 'location_type' FROM Menu WHERE (SELECT COUNT(location_type) FROM Menu WHERE location_type IS NOT NULL) = 0
+        UNION ALL
+        SELECT 'Dish', 'description' FROM Dish WHERE (SELECT COUNT(description) FROM Dish WHERE description IS NOT NULL) = 0;
+    """
+}
+
+# Run and log results
+with open(OUTPUT_LOG, 'w') as log_file:
+    for description, query in queries.items():
+        log_file.write(f"=== {description} ===\n")
+        df = pd.read_sql_query(query, conn)
+        if df.empty:
+            log_file.write("No Violations Found.\n")
+        else:
+            log_file.write(df.to_string(index=False))
+            log_file.write("\n")
+        log_file.write("\n")
+
+print(f"SQL Integrity Checks Completed. See {OUTPUT_LOG} for results.")
+
+conn.close()

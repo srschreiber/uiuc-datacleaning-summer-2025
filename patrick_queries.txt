@@ -1,0 +1,66 @@
+-- Orphan MenuPages (menu_id not in Menu)
+SELECT id, menu_id FROM MenuPage WHERE menu_id NOT IN (SELECT id FROM Menu);
+
+-- Orphan MenuItems (menu_page_id not in MenuPage)
+SELECT id, menu_page_id FROM MenuItem WHERE menu_page_id NOT IN (SELECT id FROM MenuPage);
+
+-- MenuItem with invalid dish_id
+SELECT id, dish_id FROM MenuItem WHERE dish_id NOT IN (SELECT id FROM Dish);
+
+-- Duplicate MenuPage (id)
+SELECT id, COUNT(*) FROM MenuPage GROUP BY id HAVING COUNT(*) > 1;
+
+-- Duplicate MenuItem (id)
+SELECT id, COUNT(*) FROM MenuItem GROUP BY id HAVING COUNT(*) > 1;
+
+-- Duplicate Dish (id)
+SELECT id, COUNT(*) FROM Dish GROUP BY id HAVING COUNT(*) > 1;
+
+-- Duplicate page_number within same menu_id in MenuPage
+SELECT menu_id, page_number, COUNT(*) 
+FROM MenuPage 
+GROUP BY menu_id, page_number 
+HAVING COUNT(*) > 1;
+
+-- MenuItems appearing on multiple pages (same dish_id on multiple menu_page_id)
+SELECT dish_id, COUNT(DISTINCT menu_page_id)
+FROM MenuItem
+GROUP BY dish_id
+HAVING COUNT(DISTINCT menu_page_id) > 1;
+
+-- MenuPage.page_number < 1 or NULL
+SELECT id, menu_id, page_number FROM MenuPage WHERE page_number IS NULL OR page_number < 1;
+
+-- Menu.date outside 1800-2025
+SELECT id, date FROM Menu 
+WHERE 
+    date IS NULL 
+    OR CAST(strftime('%Y', date) AS INTEGER) < 1800 
+    OR CAST(strftime('%Y', date) AS INTEGER) > 2025;
+
+-- Dish first_appeared > last_appeared
+SELECT id, first_appeared, last_appeared 
+FROM Dish 
+WHERE first_appeared IS NOT NULL AND last_appeared IS NOT NULL 
+      AND first_appeared > last_appeared;
+
+-- Dish first_appeared or last_appeared > 2025
+SELECT id, first_appeared, last_appeared 
+FROM Dish 
+WHERE (first_appeared > 2025 OR last_appeared > 2025);
+
+-- MenuItem created_at > updated_at
+SELECT id, created_at, updated_at 
+FROM MenuItem 
+WHERE created_at IS NOT NULL AND updated_at IS NOT NULL 
+      AND created_at > updated_at;
+
+-- Columns with 100% NULLs
+SELECT 'Menu' AS table_name, 'keywords' AS column_name 
+FROM Menu WHERE (SELECT COUNT(keywords) FROM Menu WHERE keywords IS NOT NULL) = 0
+UNION ALL
+SELECT 'Menu', 'language' FROM Menu WHERE (SELECT COUNT(language) FROM Menu WHERE language IS NOT NULL) = 0
+UNION ALL
+SELECT 'Menu', 'location_type' FROM Menu WHERE (SELECT COUNT(location_type) FROM Menu WHERE location_type IS NOT NULL) = 0
+UNION ALL
+SELECT 'Dish', 'description' FROM Dish WHERE (SELECT COUNT(description) FROM Dish WHERE description IS NOT NULL) = 0;
