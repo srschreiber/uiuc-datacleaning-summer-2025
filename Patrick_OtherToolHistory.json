@@ -1,4 +1,103 @@
-{
+[
+    {
+        "tool": "Python + SQLite",
+        "script_name": "integrity_check.py",
+        "description": "This script loads the Menu, MenuPage, MenuItem, and Dish tables into an in-memory SQLite database and executes SQL queries to check data integrity constraints.",
+        "inputs": [
+          "raw_dataset/Menu.csv",
+          "raw_dataset/MenuPage.csv",
+          "raw_dataset/MenuItem.csv",
+          "raw_dataset/Dish.csv"
+        ],
+        "outputs": [
+          "queries_log.txt"
+        ],
+        "operations": [
+          {
+            "step": 1,
+            "operation": "Load CSV files into SQLite database",
+            "details": "The four dataset CSVs are loaded into SQLite in-memory tables using pandas.to_sql()."
+          },
+          {
+            "step": 2,
+            "operation": "Check for orphan MenuPages",
+            "query": "SELECT id, menu_id FROM MenuPage WHERE menu_id NOT IN (SELECT id FROM Menu);",
+            "purpose": "Ensure every MenuPage references a valid Menu."
+          },
+          {
+            "step": 3,
+            "operation": "Check for orphan MenuItems",
+            "query": "SELECT id, menu_page_id FROM MenuItem WHERE menu_page_id NOT IN (SELECT id FROM MenuPage);",
+            "purpose": "Ensure every MenuItem references a valid MenuPage."
+          },
+          {
+            "step": 4,
+            "operation": "Check MenuItems for invalid dish references",
+            "query": "SELECT id, dish_id FROM MenuItem WHERE dish_id NOT IN (SELECT id FROM Dish);",
+            "purpose": "Ensure MenuItem.dish_id exists in Dish."
+          },
+          {
+            "step": 5,
+            "operation": "Check for duplicate primary keys",
+            "queries": [
+              "SELECT id, COUNT(*) FROM MenuPage GROUP BY id HAVING COUNT(*) > 1;",
+              "SELECT id, COUNT(*) FROM MenuItem GROUP BY id HAVING COUNT(*) > 1;",
+              "SELECT id, COUNT(*) FROM Dish GROUP BY id HAVING COUNT(*) > 1;"
+            ],
+            "purpose": "Ensure primary key uniqueness in MenuPage, MenuItem, and Dish."
+          },
+          {
+            "step": 6,
+            "operation": "Check for duplicate page_number within same menu_id",
+            "query": "SELECT menu_id, page_number, COUNT(*) FROM MenuPage GROUP BY menu_id, page_number HAVING COUNT(*) > 1;",
+            "purpose": "Ensure page numbers within a menu are unique."
+          },
+          {
+            "step": 7,
+            "operation": "Check if MenuItem appears on multiple pages",
+            "query": "SELECT dish_id, COUNT(DISTINCT menu_page_id) FROM MenuItem GROUP BY dish_id HAVING COUNT(DISTINCT menu_page_id) > 1;",
+            "purpose": "Ensure MenuItem.dish_id is not linked to multiple MenuPages."
+          },
+          {
+            "step": 8,
+            "operation": "Check MenuPage.page_number validity",
+            "query": "SELECT id, menu_id, page_number FROM MenuPage WHERE page_number IS NULL OR page_number < 1;",
+            "purpose": "Ensure MenuPage.page_number is a positive integer."
+          },
+          {
+            "step": 9,
+            "operation": "Validate Menu.date within allowed range",
+            "query": "SELECT id, date FROM Menu WHERE date IS NULL OR CAST(strftime('%Y', date) AS INTEGER) < 1800 OR CAST(strftime('%Y', date) AS INTEGER) > 2025;",
+            "purpose": "Ensure Menu.date is within 1800-2025."
+          },
+          {
+            "step": 10,
+            "operation": "Check Dish first_appeared > last_appeared",
+            "query": "SELECT id, first_appeared, last_appeared FROM Dish WHERE first_appeared IS NOT NULL AND last_appeared IS NOT NULL AND first_appeared > last_appeared;",
+            "purpose": "Ensure Dish.first_appeared is not after last_appeared."
+          },
+          {
+            "step": 11,
+            "operation": "Check Dish first_appeared or last_appeared > 2025",
+            "query": "SELECT id, first_appeared, last_appeared FROM Dish WHERE (first_appeared > 2025 OR last_appeared > 2025);",
+            "purpose": "Ensure Dish appearance dates are capped at 2025."
+          },
+          {
+            "step": 12,
+            "operation": "Check MenuItem.created_at > updated_at",
+            "query": "SELECT id, created_at, updated_at FROM MenuItem WHERE created_at IS NOT NULL AND updated_at IS NOT NULL AND created_at > updated_at;",
+            "purpose": "Ensure MenuItem.created_at is not after updated_at."
+          },
+          {
+            "step": 13,
+            "operation": "Detect Columns with 100% NULL values",
+            "query": "SELECT 'Menu' AS table_name, 'keywords' AS column_name FROM Menu WHERE (SELECT COUNT(keywords) FROM Menu WHERE keywords IS NOT NULL) = 0 UNION ALL SELECT 'Menu', 'language' FROM Menu WHERE (SELECT COUNT(language) FROM Menu WHERE language IS NOT NULL) = 0 UNION ALL SELECT 'Menu', 'location_type' FROM Menu WHERE (SELECT COUNT(location_type) FROM Menu WHERE location_type IS NOT NULL) = 0 UNION ALL SELECT 'Dish', 'description' FROM Dish WHERE (SELECT COUNT(description) FROM Dish WHERE description IS NOT NULL) = 0;",
+            "purpose": "Detect columns that are entirely NULL in Menu and Dish."
+          }
+        ],
+        "notes": "This script only performs integrity checks and does not modify data. All violations are logged into queries_log.txt."
+    },
+    {
     "tool": "Python",
     "script": "cleaning.py",
     "description": "Data cleaning operations on NYPL Menu Dataset to ensure data integrity and consistency.",
@@ -121,4 +220,4 @@
     ],
     "log_file": "cleaning_log.txt"
   }
-  
+]
