@@ -40,7 +40,13 @@ with tarfile.open('dataset.tar.gz', 'r:gz') as tar:
 
 # Merging the dataframes
 df = pd.merge(menu_item_df, menu_page_df, left_on='menu_page_id', right_on='id', how='left')
+# print dataframe shape after first merge
+print(f"Shape after merging MenuItem and MenuPage: {df.shape}")
+
 df = pd.merge(df, menu_df, left_on='menu_id', right_on='id', how='left')
+
+#print dataframe shape after second merge
+print(f"Shape after merging with Menu: {df.shape}")
 
 # Displaying the first few rows of the merged dataframe
 print(df.head())
@@ -67,9 +73,15 @@ df = df.rename(columns={
 # keeping only relevant columns
 df = df[['menu_item_id', 'menu_item_price', 'currency', 'dish_id', 'date_recorded']]
 
+# print the shape of the dataframe after dropping unnecessary columns
+print(f"Shape after dropping unnecessary columns: {df.shape}")
+
 # Merging with Dish dataframe for date_recorded field
 df = pd.merge(df, dish_df, left_on='dish_id', right_on='id', how='left')
 df = df[['menu_item_id', 'menu_item_price', 'currency', 'dish_id', 'name', 'date_recorded']]
+
+# print the shape of the dataframe after merging with Dish
+print(f"Shape after merging with Dish: {df.shape}")
 
 # Displaying the cleaned dataframe
 print(df.head())
@@ -127,11 +139,43 @@ def convert_to_usd(row):
 #sort the dataframe by menu_item_id for troubleshooting
 df = df.sort_values(by='menu_item_id')
 
+# print size of the dataframe before dropping rows
+print(f"Dataframe size before dropping rows: {df.shape}")
+
 # drop rows with missing currency codes or prices
 df = df.dropna(subset=['curr_code', 'menu_item_price'])
 
-c = CurrencyRates()
-print(c.get_rates('USD').keys())  # Shows all supported codes against USD
+# print size of the dataframe after dropping rows
+print(f"Dataframe size after dropping rows: {df.shape}")
+
+#c = CurrencyRates()
+#print(c.get_rates('USD'))  # Shows all supported codes against USD
+
+# Keep only the top 5000 rows for testing
+df = df.iloc[:5000]
 
 # Applying the conversion function
 #df['menu_item_price_usd'] = df.apply(convert_to_usd, axis=1)
+
+# Importing cpi for inflation adjustment
+import cpi
+cpi.update()  # Update CPI data
+
+
+# Function to adjust for inflation
+def adjust_inflation(row, to_year=2024):
+    if row['curr_code'] == 'USD':
+        return cpi.inflate(row['menu_item_price'], row['date_recorded_pydt'].year, to=to_year)
+    else:
+        return 0
+
+c = CurrencyRates()
+converted_price = c.convert('cad', 'USD', 100, datetime(2023, 1, 1))
+print(f"Converted 100 CAD to USD on 2023-01-01: {converted_price}")
+
+#df['amount_usd_inflation_adjusted'] = df.apply(adjust_inflation, axis=1)
+
+
+
+# Print a few rows where curr code is USD
+#print(df[df['curr_code'] == 'USD'].head())

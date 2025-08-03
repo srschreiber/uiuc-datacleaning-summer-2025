@@ -28,7 +28,7 @@ This step involved cleaning, unifying, and standardizing datasets containing tra
 ### 3. Missing Value (NaN) Management
 
 - Detected missing or NaN values in both float and non-float columns using `.isna()`, `pd.isna()`, and related utilities.
-- Dropped rows or columns with excessive missingness, or imputed default values as needed.
+- Dropped rows or columns with excessive missing values, and/or imputed default values as needed.
 
 ### 4. Joining and Merging Data
 
@@ -39,12 +39,11 @@ This step involved cleaning, unifying, and standardizing datasets containing tra
 
 - Used the **forex-python** library to fetch live and historical FX rates.
 - Converted prices from source currencies to USD, leveraging each record’s transaction date for accurate historical rates.
-- Ensured date columns were properly converted to `datetime` before processing.
 
 ### 6. Inflation Adjustment
 
 - Applied inflation adjustment to USD-valued prices using the `cpi` library.
-- Normalized amounts to a common comparison year (e.g., 2025) for consistent analysis across time.
+- Normalized amounts to a common comparison year (2024) for consistent analysis across time.
 
 ### 7. Data Wrangling Techniques
 
@@ -64,17 +63,18 @@ The final, cleaned dataset:
 
 - Contains price values converted to USD (using forex-python and proper historic FX rates) and adjusted for inflation
 - Features standardized column names and data types
-- Is free from unwanted rows, duplicate records, and excessive missing values
+- Is free from unwanted rows, duplicate records, and missing values
+    - 65% of the dataset was retained while the rest was dropped
+    - Original dataset had 1,332,726 rows. Cleaned dataset had 875,767 rows
 - Is fully prepared for downstream analytics, visualization, or further data science tasks
 
 ## Tools and Libraries Used
 
 - **pandas**: Data wrangling and manipulation
-- **tarfile, requests**: Handling archives and retrieving data from web sources
+- **tarfile**: Handling archives and retrieving data from web sources
 - **forex-python**: Currency conversion, including historic conversion rates
 - **cpi**: Inflation adjustment
 - **numpy**: NaN/missing value checks
-- *(Optional)* Azure OpenAI: Advanced text normalization (where appropriate)
 
 ---
 
