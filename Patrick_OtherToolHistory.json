@@ -1,0 +1,124 @@
+{
+    "tool": "Python",
+    "script": "cleaning.py",
+    "description": "Data cleaning operations on NYPL Menu Dataset to ensure data integrity and consistency.",
+    "operations": [
+      {
+        "task": "Fix Foreign Key Violations",
+        "details": [
+          {
+            "column": "MenuPage.menu_id",
+            "violations_fixed": 5803
+          },
+          {
+            "column": "MenuItem.menu_page_id",
+            "violations_fixed": 5373
+          },
+          {
+            "column": "MenuItem.dish_id",
+            "violations_fixed": 244
+          }
+        ]
+      },
+      {
+        "task": "Remove Duplicate Rows",
+        "details": [
+          {
+            "table": "MenuPage",
+            "duplicates_removed": 0
+          },
+          {
+            "table": "MenuItem",
+            "duplicates_removed": 0
+          }
+        ]
+      },
+      {
+        "task": "Fix Page Number Validity",
+        "details": [
+          {
+            "column": "MenuPage.page_number",
+            "invalid_values_fixed": 945
+          },
+          {
+            "column": "MenuPage.page_number (uniqueness within menu_id)",
+            "duplicates_removed": 62
+          }
+        ]
+      },
+      {
+        "task": "Deduplicate MenuItem appearing on Multiple Pages",
+        "details": [
+          {
+            "column": "MenuItem.dish_id & menu_page_id",
+            "duplicates_removed": 19935
+          }
+        ]
+      },
+      {
+        "task": "Remove Fully Null Columns",
+        "details": [
+          {
+            "table": "Menu",
+            "columns_removed": ["keywords", "language", "location_type"]
+          },
+          {
+            "table": "Dish",
+            "columns_removed": ["description"]
+          }
+        ]
+      },
+      {
+        "task": "Fix Primary Key Issues",
+        "details": [
+          {
+            "table": "Menu",
+            "nulls_fixed": 0,
+            "duplicates_removed": 0
+          },
+          {
+            "table": "MenuPage",
+            "nulls_fixed": 0,
+            "duplicates_removed": 0
+          },
+          {
+            "table": "MenuItem",
+            "nulls_fixed": 0,
+            "duplicates_removed": 0
+          },
+          {
+            "table": "Dish",
+            "nulls_fixed": 0,
+            "duplicates_removed": 0
+          }
+        ]
+      },
+      {
+        "task": "Fix Date Values",
+        "details": [
+          {
+            "column": "Menu.date",
+            "invalid_dates_fixed": 586
+          },
+          {
+            "column": "Dish.first_appeared",
+            "years_fixed": 11
+          },
+          {
+            "column": "Dish.last_appeared",
+            "years_fixed": 179
+          },
+          {
+            "column": "Dish.first_appeared > last_appeared",
+            "records_fixed": 0
+          },
+          {
+            "column": "MenuItem.created_at > updated_at",
+            "records_fixed": 2843
+          }
+        ]
+      }
+    ],
+    "log_file": "cleaning_log.txt"
+  }
+  
